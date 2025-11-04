@@ -4,12 +4,14 @@
 // Bola y arco "noise" RGB(197,0,63)
 // Fuente personalizada: discodeck.ttf
 // Pantalla completa + 3 vidas (😊) + score
-// Reinicia al hacer clic tras GAME OVER
+// Reinicia al click tras GAME OVER
+// Sonido "shhh.mp3" al tocar una letra
 
 let bricks = [];
 let ball;
 let paddle;
 let fuente;
+let shhh;  // sonido
 
 let palabraSilencio = "silence";
 let ruidoKanji = "o";     // símbolo del ruido (bola)
@@ -19,9 +21,10 @@ let vidas = 3;
 let score = 0;
 let gameOver = false;
 
-// ---- Cargar la fuente antes de iniciar ----
+// ---- Cargar la fuente y el audio antes de iniciar ----
 function preload() {
   fuente = loadFont('discodeck.ttf');
+  shhh   = loadSound('sssh.mp3');  // asegúrate de subir este archivo al sketch
 }
 
 function setup() {
@@ -170,12 +173,19 @@ function actualizarBola() {
     ball.y  = paddle.y - halfH - ball.r - 1;
   }
 
+  // Colisión con las letras de "silence"
   for (let b of bricks) {
     if (!b.alive) continue;
     if (dist(ball.x, ball.y, b.x, b.y) < 20) {
       b.alive = false;
       ball.vy *= -1;
       score++;
+
+      // 🔊 reproducir sonido shhh al romper una letra
+      if (shhh && shhh.isLoaded()) {
+        shhh.play();
+      }
+
       break;
     }
   }
@@ -216,11 +226,11 @@ function drawGameOver() {
   push();
   textFont(fuente);
   textAlign(CENTER, CENTER);
-  fill(236, 152, 0); // color solicitado
+  fill(236, 152, 0); // color del GAME OVER
   textSize(48);
   text("GAME OVER", width / 2, height / 2);
   textSize(24);
-  text("Score final: " + score, width / 2, height / 2 + 40);
+  text("Score: " + score, width / 2, height / 2 + 40);
   textSize(20);
   text("click to restart", width / 2, height / 2 + 80);
   pop();
@@ -230,6 +240,6 @@ function drawGameOver() {
 
 function mousePressed() {
   if (gameOver) {
-    iniciarJuego();  // reinicia todo al hacer clic
+    iniciarJuego();
   }
 }
